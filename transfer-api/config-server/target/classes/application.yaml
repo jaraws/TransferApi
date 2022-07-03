@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: config-server
+  cloud:
+    config:
+      enabled: true
+      server:
+        git:
+          uri: https://github.com/jaraws/TransferApiConfigurations
+          skipSslValidation: true
+
+
+server:
+  port: ${PORT:8080}

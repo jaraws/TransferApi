@@ -1,0 +1,7 @@
+org\transfer\api\controller\TransferServiceController.class
+org\transfer\api\TransferServiceApplication.class
+org\transfer\api\config\TransferServiceConfiguration.class
+org\transfer\api\service\impl\TransferServiceImpl.class
+org\transfer\api\clients\AccountServiceClient.class
+org\transfer\api\clients\EventServiceClient.class
+org\transfer\api\service\TransferService.class

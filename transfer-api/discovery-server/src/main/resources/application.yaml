@@ -1,0 +1,11 @@
+server:
+ port: ${PORT:8081} # Indicate the default PORT where this service will be started
+
+eureka:
+  client:
+    registerWithEureka: false #telling the server not to register itself in the service registry
+    fetchRegistry: false
+    serviceUrl:
+      defaultZone: http://localhost:8081/eureka
+  server:
+    waitTimeInMsWhenSyncEmpty: 0  #wait time for subsequent sync
