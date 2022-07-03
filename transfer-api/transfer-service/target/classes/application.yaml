@@ -1,8 +1,0 @@
-server:
-  port: ${port:8084}
-
-
-eureka: #tells about the Eureka server details and its refresh time
-  client:
-    serviceUrl:
-      defaultZone: ${discovery.server.url}

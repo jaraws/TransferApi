@@ -1,7 +1,0 @@
-org\event\api\controller\EventServiceController.class
-org\event\api\repository\TransferEventRepository.class
-org\event\api\service\impl\EventServiceImpl.class
-org\event\api\config\EventServiceConfiguration.class
-org\event\api\entity\TransferEvent.class
-org\event\api\service\EventService.class
-org\event\api\EventServiceApplication.class
