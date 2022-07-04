@@ -8,6 +8,7 @@ import org.common.api.response.GetTransferEventsResponse;
 import org.common.api.response.RecordTransferEventResponse;
 import org.common.api.util.ErrorCode;
 import org.event.api.entity.TransferEvent;
+import org.event.api.mapper.TransferEventMapper;
 import org.event.api.service.EventService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,45 +30,32 @@ import java.util.stream.Collectors;
 @RequestMapping("/event-api")
 public class EventServiceController {
     private final static Logger logger = LoggerFactory.getLogger(EventServiceController.class);
+
     @Autowired
     private ObjectFactory<GetTransferEventsResponse> getTransferEventsResponseObjectFactory;
 
     @Autowired
-    private ObjectFactory<TransferEventDto> transferEventDtoObjectFactory;
-
-    @Autowired
     private ObjectFactory<RecordTransferEventResponse> recordTransferEventResponseObjectFactory;
 
+
     @Autowired
-    private ObjectFactory<TransferEvent> transferEventObjectFactory;
+    private TransferEventMapper transferEventMapper;
 
     @Autowired
     private EventService eventService;
 
-    private final Function<TransferEvent, TransferEventDto> transferEventEntityToDtoMapper = eventEntity -> {
-        TransferEventDto eventDto = getTransferEventDto();
-        eventDto.setEventId(eventEntity.getEventId());
-        eventDto.setSourceAccountNumber(eventEntity.getSourceAccountNumber());
-        eventDto.setDestinationAccountNumber(eventEntity.getDestinationAccountNumber());
-        eventDto.setTransferAmount(eventEntity.getTransferAmount());
-        return eventDto;
-    };
 
-    private final Function<TransferEventDto, TransferEvent> transferEventDtoToEntityMapper = eventDto -> {
-        TransferEvent eventEntity = getTransferEventEntity();
-        eventEntity.setSourceAccountNumber(eventDto.getSourceAccountNumber());
-        eventEntity.setDestinationAccountNumber(eventDto.getDestinationAccountNumber());
-        eventEntity.setTransferAmount(eventDto.getTransferAmount());
-        return eventEntity;
-    };
-
+    /**
+     * Get all TransferEvents
+     * @return
+     */
     @GetMapping(value = "/transfer-events")
     public GetTransferEventsResponse getTransferEvents() {
         logger.debug("Getting events for all transfers");
         GetTransferEventsResponse getTransferEventsResponse = getGetTransferEventsResponse();
         try {
             List<TransferEvent> transferEvents = eventService.getTransferEvents();
-            List<TransferEventDto> transferEventDtoList = transferEvents.stream().map(transferEventEntityToDtoMapper).collect(Collectors.toList());
+            List<TransferEventDto> transferEventDtoList = transferEvents.stream().map(transferEventMapper.transferEventEntityToDtoMapper).collect(Collectors.toList());
             getTransferEventsResponse.setTransferEventDtoList(transferEventDtoList);
             return getTransferEventsResponse;
         } catch (TransferException e) {
@@ -82,6 +70,11 @@ public class EventServiceController {
 
     }
 
+    /**
+     * Record transfer event
+     * @param recordTransferEventRequest
+     * @return
+     */
     @PostMapping(value = "/transfer-event",
             produces = "application/json",
             consumes = "application/json")
@@ -91,8 +84,8 @@ public class EventServiceController {
         RecordTransferEventResponse recordTransferEventResponse = getRecordTransferEventResponse();
 
         try {
-            TransferEvent transferEvent = eventService.recordTransferEvent(transferEventDtoToEntityMapper.apply(recordTransferEventRequest.getTransferEventDto()));
-            recordTransferEventResponse.setTransferEventDto(transferEventEntityToDtoMapper.apply(transferEvent));
+            TransferEvent transferEvent = eventService.recordTransferEvent(transferEventMapper.transferEventDtoToEntityMapper.apply(recordTransferEventRequest.getTransferEventDto()));
+            recordTransferEventResponse.setTransferEventDto(transferEventMapper.transferEventEntityToDtoMapper.apply(transferEvent));
             return recordTransferEventResponse;
         } catch (TransferException e) {
             logger.error("Error recording transfer event details {},{}", e.getErrorCode(), e);
@@ -110,13 +103,5 @@ public class EventServiceController {
 
     private RecordTransferEventResponse getRecordTransferEventResponse() {
         return recordTransferEventResponseObjectFactory.getObject();
-    }
-
-    private TransferEventDto getTransferEventDto() {
-        return transferEventDtoObjectFactory.getObject();
-    }
-
-    private TransferEvent getTransferEventEntity() {
-        return transferEventObjectFactory.getObject();
     }
 }

@@ -34,6 +34,12 @@ public class TransferServiceController {
     @Autowired
     private TransferService transferService;
 
+    /**
+     * API Transfer funds from one account to another.
+     *
+     * @param transferRequest
+     * @return
+     */
     @PostMapping(value = "/transfer", produces = "application/json", consumes = "application/json")
     public TransferResponse transfer(@RequestBody TransferRequest transferRequest) {
 

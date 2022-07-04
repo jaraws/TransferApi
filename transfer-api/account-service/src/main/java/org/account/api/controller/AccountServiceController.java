@@ -2,6 +2,7 @@ package org.account.api.controller;
 
 
 import org.account.api.entity.Account;
+import org.account.api.mapper.AccountMapper;
 import org.account.api.service.AccountService;
 import org.common.api.dto.AccountDto;
 import org.common.api.exception.TransferException;
@@ -17,7 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -35,43 +35,32 @@ public class AccountServiceController {
     private ObjectFactory<AccountDetailsResponse> accountDetailsResponseObjectFactory;
 
     @Autowired
-    private ObjectFactory<AccountDto> accountDtoObjectFactory;
-    @Autowired
-    private ObjectFactory<Account> accountEntityObjectFactory;
+    private ObjectFactory<UpdateAccountDetailsResponse> updateAccountDetailsResponseObjectFactory;
 
     @Autowired
-    private ObjectFactory<UpdateAccountDetailsResponse> updateAccountDetailsResponseObjectFactory;
+    private AccountMapper accountMapper;
 
     @Autowired
     private AccountService accountService;
 
-    private Function<Account, AccountDto> accountEntityToDtoMapper = accountEntity -> {
-        AccountDto accountDto = getAccountDto();
-        accountDto.setAccountNumber(accountEntity.getAccountNumber());
-        accountDto.setAccountBalance(accountEntity.getAccountBalance());
-        return accountDto;
-    };
-
-    private Function<AccountDto, Account> accountDtoToEntityMapper = accountDto -> {
-        Account accountEntity = getAccountEntity();
-        accountEntity.setAccountNumber(accountDto.getAccountNumber());
-        accountEntity.setAccountBalance(accountDto.getAccountBalance());
-        return accountEntity;
-    };
-
+    /**
+     * Get details of all accounts
+     *
+     * @return
+     */
     @GetMapping(value = "/accounts")
     public AccountDetailsResponse getAllAccountDetails() {
         logger.debug("Getting account details for all accounts");
         AccountDetailsResponse accountDetailsResponse = getAccountDetailsResponse();
         try {
             List<Account> accounts = accountService.getAccountDetails();
-            List<AccountDto> listAccountDto = accounts.stream().map(accountEntityToDtoMapper).collect(Collectors.toList());
+            List<AccountDto> listAccountDto = accounts.stream().map(accountMapper.accountEntityToDtoMapper).collect(Collectors.toList());
 
             accountDetailsResponse.setListAccountDto(listAccountDto);
             return accountDetailsResponse;
         } catch (TransferException e) {
             logger.error("Error fetching account details {},{}", e.getErrorCode(), e);
-        }catch (Exception e){
+        } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
         accountDetailsResponse.setErrorCode(ErrorCode.ERROR_GETTING_ACCOUNT_INFO);
@@ -79,6 +68,12 @@ public class AccountServiceController {
 
     }
 
+    /**
+     * Get details of given accounts.
+     *
+     * @param accountDetailsRequest
+     * @return
+     */
     @PostMapping(value = "/accounts",
             produces = "application/json",
             consumes = "application/json")
@@ -88,34 +83,40 @@ public class AccountServiceController {
         AccountDetailsResponse accountDetailsResponse = getAccountDetailsResponse();
         try {
             List<Account> accounts = accountService.getAccountDetails(accountDetailsRequest.getAccountNumbers());
-            List<AccountDto> listAccountDto = accounts.stream().map(accountEntityToDtoMapper).collect(Collectors.toList());
+            List<AccountDto> listAccountDto = accounts.stream().map(accountMapper.accountEntityToDtoMapper).collect(Collectors.toList());
             accountDetailsResponse.setListAccountDto(listAccountDto);
             return accountDetailsResponse;
         } catch (TransferException e) {
             logger.error("Error fetching account details {},{}", e.getErrorCode(), e);
-        }catch (Exception e){
+        } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
         accountDetailsResponse.setErrorCode(ErrorCode.ERROR_GETTING_ACCOUNT_INFO);
         return accountDetailsResponse;
     }
 
+    /**
+     * Update account details.
+     *
+     * @param updateAccountDetailsRequest
+     * @return
+     */
     @PostMapping(value = "/update",
             produces = "application/json",
             consumes = "application/json")
     public UpdateAccountDetailsResponse updateAccountDetails(@RequestBody UpdateAccountDetailsRequest updateAccountDetailsRequest) {
 
-        logger.debug("Updating account details for account numbers: {}", updateAccountDetailsRequest.getListAccountDto().stream().map(dto->dto.getAccountNumber()).collect(Collectors.toList()));
+        logger.debug("Updating account details for account numbers: {}", updateAccountDetailsRequest.getListAccountDto().stream().map(dto -> dto.getAccountNumber()).collect(Collectors.toList()));
         UpdateAccountDetailsResponse updateAccountDetailsResponse = getUpdateAccountDetailsResponse();
         try {
-            List<Account> accountList = accountService.updateAccountDetails(updateAccountDetailsRequest.getListAccountDto().stream().map(accountDtoToEntityMapper).collect(Collectors.toList()));
-            List<AccountDto> listAccountDto = accountList.stream().map(accountEntityToDtoMapper).collect(Collectors.toList());
+            List<Account> accountList = accountService.updateAccountDetails(updateAccountDetailsRequest.getListAccountDto().stream().map(accountMapper.accountDtoToEntityMapper).collect(Collectors.toList()));
+            List<AccountDto> listAccountDto = accountList.stream().map(accountMapper.accountEntityToDtoMapper).collect(Collectors.toList());
             updateAccountDetailsResponse.setAccountDtoList(listAccountDto);
             return updateAccountDetailsResponse;
         } catch (TransferException e) {
             logger.error("Error updating account details {},{}", e.getErrorCode(), e);
             updateAccountDetailsResponse.setErrorCode(e.getErrorCode());
-        }catch (Exception e){
+        } catch (Exception e) {
             logger.error(e.getMessage(), e);
             updateAccountDetailsResponse.setErrorCode(ErrorCode.ERROR_UPDATING_ACCOUNT_INFO);
         }
@@ -123,18 +124,11 @@ public class AccountServiceController {
         return updateAccountDetailsResponse;
     }
 
-
     private AccountDetailsResponse getAccountDetailsResponse() {
         return accountDetailsResponseObjectFactory.getObject();
     }
 
-    private AccountDto getAccountDto() {
-        return accountDtoObjectFactory.getObject();
-    }
 
-    private Account getAccountEntity() {
-        return accountEntityObjectFactory.getObject();
-    }
     private UpdateAccountDetailsResponse getUpdateAccountDetailsResponse() {
         return updateAccountDetailsResponseObjectFactory.getObject();
     }

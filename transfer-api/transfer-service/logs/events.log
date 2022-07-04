@@ -1,1 +1,0 @@
-2022-07-04 15:47:01,454 INFO EVENT_LOGGER [main] TransferEventDto(eventId=0, sourceAccountNumber=sa1001, destinationAccountNumber=sa1002, transferAmount=100)

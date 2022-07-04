@@ -25,6 +25,11 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.function.Predicate;
 
+/**
+ * Service to orchestrate fund transfer between account and
+ * event service.
+ *
+ */
 @Service
 public class TransferServiceImpl implements TransferService {
 
@@ -70,16 +75,34 @@ public class TransferServiceImpl implements TransferService {
         return transferEventDtoObjectFactory.getObject();
     }
 
+    /**
+     * Service method get account details of given accounts
+     *
+     * @param accountDetailsRequest
+     * @return
+     */
     @Override
     public AccountDetailsResponse getAccountDetails(AccountDetailsRequest accountDetailsRequest) {
         return accountServiceClient.getAccountDetails(accountDetailsRequest);
     }
 
+    /**
+     * Service method Update account details
+     *
+     * @param updateAccountDetailsRequest
+     * @return
+     */
     @Override
     public AccountDetailsResponse updateAccountBalance(UpdateAccountDetailsRequest updateAccountDetailsRequest) {
         return accountServiceClient.updateAccountDetails(updateAccountDetailsRequest);
     }
 
+    /**
+     * Service method record transfer event with event service
+     *
+     * @param recordTransferEventRequest
+     * @return
+     */
     @Override
     public RecordTransferEventResponse recordTransferEvent(RecordTransferEventRequest recordTransferEventRequest) {
         return eventServiceClient.recordTransferEvent(recordTransferEventRequest);
