@@ -42,7 +42,13 @@ o Transaction
 - Discovery Service/Server URL: http://localhost:8081/
 - Config Service/Server URL: http://localhost:8080/service-name/profile-name
 - Gateway Service URL: http://localhost:8085/transfer-api
-  
+
+**Test Cases**
+======================================
+- Account Service: Integration Test Cases
+- Event Service: Integration Test Cases
+- Transfer Service: Unit Test Cases
+
 **System Design**
 ======================================
 ![image](https://user-images.githubusercontent.com/4828778/177153726-c2874b1f-741a-49f8-b8fa-fe1c9ceace1c.png)
