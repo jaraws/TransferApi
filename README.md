@@ -27,7 +27,7 @@ o Transaction
 **Instruction to test API**
 ======================================
 - Gateway is configured to listen on port: 8085
-- Do a HTTP POST request at: http://localhost:8085/transfer-api
+- Do a HTTP POST request at: http://localhost:8085/transfer-api/transfer
 - Sample JSON request:
   {
     "sourceAccountNumber":"sa1001",
@@ -40,10 +40,18 @@ o Transaction
 - Account Service in-memory Database: http://localhost:8082/h2-console
 - Event Service in-memory Database: http://localhost:8083/h2-console
 - Discovery Service/Server URL: http://localhost:8081/
-- Config Service/Server URL: http://localhost:8080/<service-name>/<profile:default>
-- Gateway Service URL: http://localhost:8085/transfer-api
-  
+- Config Service/Server URL: http://localhost:8080/service-name/profile-name
+- Gateway Service URL: http://localhost:8085/transfer-api/transfer
+
+**Test Cases**
+======================================
+- Account Service: Integration Test Cases
+- Event Service: Integration Test Cases
+- Transfer Service: Unit Test Cases
+
 **System Design**
 ======================================
-  
+![image](https://user-images.githubusercontent.com/4828778/177177600-4e1a929d-8c11-481d-8a34-6f46ae5f5928.png)
+
+
  
