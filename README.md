@@ -51,6 +51,7 @@ o Transaction
 
 **System Design**
 ======================================
-![image](https://user-images.githubusercontent.com/4828778/177153726-c2874b1f-741a-49f8-b8fa-fe1c9ceace1c.png)
+![image](https://user-images.githubusercontent.com/4828778/177177600-4e1a929d-8c11-481d-8a34-6f46ae5f5928.png)
+
 
  
