@@ -108,6 +108,13 @@ public class TransferServiceImpl implements TransferService {
         TransferResponse transferResponse = getTransferResponse();
         prepareTransferResponse(transferResponse, transferRequest);
 
+        // Check source and destination account numbers are not same
+        if(transferRequest.getSourceAccountNumber().equalsIgnoreCase(transferRequest.getDestinationAccountNumber())){
+            transferResponse.addErrors(ErrorCode.SOURCE_DEST_CAN_NOT_BE_SAME.getErrorMessage());
+            transferResponse.setTransferStatus(false);
+            return transferResponse;
+        }
+
         // Fetch account details
         AccountDetailsRequest accountDetailsRequest = getAccountDetailsRequest();
         accountDetailsRequest.setAccountNumbers(Arrays.asList(transferRequest.getSourceAccountNumber(), transferRequest.getDestinationAccountNumber()));
@@ -127,6 +134,7 @@ public class TransferServiceImpl implements TransferService {
         if (transferResponse.getErrors().size() > 0) {
             // Errors identified during validation
             logger.error("Error validating fund transfer request: {}", transferResponse.getErrors());
+            transferResponse.setTransferStatus(false);
             return transferResponse;
         }
 

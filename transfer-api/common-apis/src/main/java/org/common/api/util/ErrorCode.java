@@ -12,6 +12,7 @@ public enum ErrorCode {
     ERROR_UPDATING_ACCOUNT_INFO("Error updating transaction information."),
     INTERNAL_SERVER_ERROR("Internal server error. Please try again after sometime."),
     INVALID_ACCOUNT_NUMBERS("Invalid account numbers."),
+    SOURCE_DEST_CAN_NOT_BE_SAME("Source and destination account numbers can not be same."),
 
     INVALID_SOURCE_ACCOUNT_NUMBER("Invalid source account number."),
     INVALID_DESTINATION_ACCOUNT_NUMBER("Invalid destination account number."),

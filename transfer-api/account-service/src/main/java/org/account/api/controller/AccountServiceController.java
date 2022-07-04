@@ -60,7 +60,7 @@ public class AccountServiceController {
     };
 
     @GetMapping(value = "/accounts")
-    private AccountDetailsResponse getAllAccountDetails() {
+    public AccountDetailsResponse getAllAccountDetails() {
         logger.debug("Getting account details for all accounts");
         AccountDetailsResponse accountDetailsResponse = getAccountDetailsResponse();
         try {
@@ -114,10 +114,12 @@ public class AccountServiceController {
             return updateAccountDetailsResponse;
         } catch (TransferException e) {
             logger.error("Error updating account details {},{}", e.getErrorCode(), e);
+            updateAccountDetailsResponse.setErrorCode(e.getErrorCode());
         }catch (Exception e){
             logger.error(e.getMessage(), e);
+            updateAccountDetailsResponse.setErrorCode(ErrorCode.ERROR_UPDATING_ACCOUNT_INFO);
         }
-        updateAccountDetailsResponse.setErrorCode(ErrorCode.ERROR_UPDATING_ACCOUNT_INFO);
+
         return updateAccountDetailsResponse;
     }
 

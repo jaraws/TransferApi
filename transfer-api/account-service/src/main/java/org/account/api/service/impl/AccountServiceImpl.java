@@ -4,7 +4,6 @@ package org.account.api.service.impl;
 import org.account.api.entity.Account;
 import org.account.api.repository.AccountRepository;
 import org.account.api.service.AccountService;
-import org.common.api.dto.AccountDto;
 import org.common.api.exception.TransferException;
 import org.common.api.util.ErrorCode;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,8 +42,18 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public List<Account> updateAccountDetails(List<Account> listAccount) throws TransferException {
-        List<Account> listAccounts = accountRepository.saveAllAndFlush(listAccount);
-        return listAccounts;
+        try {
+            boolean exists = listAccount.stream().allMatch(account -> accountRepository.existsById(account.getAccountNumber()));
+            if (exists) {
+                List<Account> listAccounts = accountRepository.saveAllAndFlush(listAccount);
+                return listAccounts;
+            } else
+                throw new TransferException(ErrorCode.INVALID_ACCOUNT_NUMBERS);
+        } catch (TransferException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new TransferException(ErrorCode.ERROR_GETTING_ACCOUNT_INFO, e);
+        }
     }
 
 }

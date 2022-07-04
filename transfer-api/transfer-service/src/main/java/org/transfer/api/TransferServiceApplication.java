@@ -7,7 +7,12 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 
-
+/**
+ * This application works as a central orchestrator
+ * between Account and Event Service to process the
+ * transfer funds request from one account to
+ * another.
+ */
 @EnableDiscoveryClient
 @EnableFeignClients
 @SpringBootApplication

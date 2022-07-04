@@ -72,10 +72,12 @@ public class EventServiceController {
             return getTransferEventsResponse;
         } catch (TransferException e) {
             logger.error("Error getting transfer events for all transfers {},{}", e.getErrorCode(), e);
+            getTransferEventsResponse.setErrorCode(e.getErrorCode());
         }catch (Exception e){
             logger.error(e.getMessage(), e);
+            getTransferEventsResponse.setErrorCode(ErrorCode.ERROR_GETTING_TRANSFER_EVENT_INFO);
         }
-        getTransferEventsResponse.setErrorCode(ErrorCode.ERROR_GETTING_TRANSFER_EVENT_INFO);
+
         return getTransferEventsResponse;
 
     }
@@ -94,10 +96,11 @@ public class EventServiceController {
             return recordTransferEventResponse;
         } catch (TransferException e) {
             logger.error("Error recording transfer event details {},{}", e.getErrorCode(), e);
+            recordTransferEventResponse.setErrorCode(e.getErrorCode());
         }catch (Exception e){
             logger.error(e.getMessage(), e);
+            recordTransferEventResponse.setErrorCode(ErrorCode.ERROR_RECORDING_TRANSFER_EVENT_INFO);
         }
-        recordTransferEventResponse.setErrorCode(ErrorCode.ERROR_RECORDING_TRANSFER_EVENT_INFO);
         return recordTransferEventResponse;
     }
 

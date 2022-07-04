@@ -10,6 +10,10 @@ public class TransferException extends Exception {
 
     private ErrorCode errorCode;
 
+    public TransferException(ErrorCode errorCode) {
+        super();
+        this.errorCode = errorCode;
+    }
     public TransferException(ErrorCode errorCode, Throwable exception) {
         super(exception);
         this.errorCode = errorCode;

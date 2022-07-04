@@ -16,7 +16,8 @@ public class TransferResponse {
     private String sourceAccountNumber;
     private String destinationAccountNumber;
     private BigDecimal transferAmount;
-    private boolean transferStatus;
+    private Boolean transferStatus;
+
     private List<String> errors = new ArrayList<>();
 
     public void addErrors(String errorMessage){

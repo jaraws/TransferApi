@@ -17,6 +17,13 @@ import org.transfer.api.service.TransferService;
 
 import java.util.Arrays;
 
+/**
+ * TransferServiceController to facilitate transfer of funds
+ * from sourceAccountNumber to destinationAccountNumber.
+ *
+ * Controller receives the JSON requests as input from
+ * Client/API Gateway.
+ */
 @RestController
 @RequestMapping("/transfer-api")
 public class TransferServiceController {
