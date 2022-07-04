@@ -1,0 +1,18 @@
+server:
+  port: 8085
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8081/eureka
+
+spring:
+  application:
+    name: gateway-service
+  cloud:
+    gateway:
+      routes:
+        - id: transferService
+          uri: lb://transfer-service
+          predicates:
+            - Path=/transfer-api/**
