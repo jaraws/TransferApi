@@ -27,7 +27,7 @@ o Transaction
 **Instruction to test API**
 ======================================
 - Gateway is configured to listen on port: 8085
-- Do a HTTP POST request at: http://localhost:8085/transfer-api
+- Do a HTTP POST request at: http://localhost:8085/transfer-api/transfer
 - Sample JSON request:
   {
     "sourceAccountNumber":"sa1001",
