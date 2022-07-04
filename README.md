@@ -40,10 +40,10 @@ o Transaction
 - Account Service in-memory Database: http://localhost:8082/h2-console
 - Event Service in-memory Database: http://localhost:8083/h2-console
 - Discovery Service/Server URL: http://localhost:8081/
-- Config Service/Server URL: http://localhost:8080/<service-name>/<profile:default>
+- Config Service/Server URL: http://localhost:8080/service-name/profile-name
 - Gateway Service URL: http://localhost:8085/transfer-api
   
 **System Design**
 ======================================
-  
+To be uploaded
  
