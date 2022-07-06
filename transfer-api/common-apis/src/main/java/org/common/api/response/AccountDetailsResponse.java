@@ -14,5 +14,5 @@ import java.util.List;
 public class AccountDetailsResponse {
 
     private List<AccountDto> listAccountDto;
-    private ErrorCode errorCode;
+    private List<ErrorCode> errorCode;
 }

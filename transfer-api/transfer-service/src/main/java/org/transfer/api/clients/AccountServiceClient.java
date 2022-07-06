@@ -3,6 +3,7 @@ package org.transfer.api.clients;
 import org.common.api.request.AccountDetailsRequest;
 import org.common.api.request.UpdateAccountDetailsRequest;
 import org.common.api.response.AccountDetailsResponse;
+import org.common.api.response.UpdateAccountDetailsResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -23,6 +24,6 @@ public interface AccountServiceClient {
     AccountDetailsResponse getAccountDetails(AccountDetailsRequest accountDetailsRequest);
 
     @RequestMapping(method = RequestMethod.POST, value = "/account-api/update")
-    AccountDetailsResponse updateAccountDetails(UpdateAccountDetailsRequest updateAccountDetailsRequest);
+    UpdateAccountDetailsResponse updateAccountDetails(UpdateAccountDetailsRequest updateAccountDetailsRequest);
 
 }

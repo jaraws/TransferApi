@@ -7,13 +7,23 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="config-service" />
         <module name="event-service" />
         <module name="common-apis" />
         <module name="gateway-service" />
         <module name="account-service" />
-        <module name="discovery-service" />
         <module name="transfer-service" />
+      </profile>
+      <profile name="Annotation profile for transfer-api" enabled="true">
+        <sourceOutputDir name="../config-server/target/generated-sources/annotations" />
+        <sourceTestOutputDir name="../config-server/target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="config-service" />
+      </profile>
+      <profile name="Annotation profile for discovery-service" enabled="true">
+        <sourceOutputDir name="../discovery-server/target/generated-sources/annotations" />
+        <sourceTestOutputDir name="../discovery-server/target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="discovery-service" />
       </profile>
     </annotationProcessing>
   </component>

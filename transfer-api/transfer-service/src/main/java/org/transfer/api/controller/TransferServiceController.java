@@ -1,7 +1,6 @@
 package org.transfer.api.controller;
 
 
-import org.common.api.exception.TransferException;
 import org.common.api.request.TransferRequest;
 import org.common.api.response.TransferResponse;
 import org.common.api.util.ErrorCode;
@@ -20,7 +19,7 @@ import java.util.Arrays;
 /**
  * TransferServiceController to facilitate transfer of funds
  * from sourceAccountNumber to destinationAccountNumber.
- *
+ * <p>
  * Controller receives the JSON requests as input from
  * Client/API Gateway.
  */
@@ -48,8 +47,6 @@ public class TransferServiceController {
 
         try {
             return transferService.transfer(transferRequest);
-        } catch (TransferException e) {
-            logger.error("Error performing transfer {},{}", e.getErrorCode(), e);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }

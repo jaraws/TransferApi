@@ -3,10 +3,14 @@ package org.transfer.api;
 
 import org.common.api.dto.AccountDto;
 import org.common.api.dto.TransferEventDto;
+import org.common.api.dto.TransferFundDto;
+import org.common.api.exception.TransferException;
 import org.common.api.request.TransferRequest;
 import org.common.api.response.AccountDetailsResponse;
 import org.common.api.response.RecordTransferEventResponse;
 import org.common.api.response.TransferResponse;
+import org.common.api.response.UpdateAccountDetailsResponse;
+import org.common.api.util.ErrorCode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -69,113 +73,88 @@ public class TransferServiceControllerTest {
         fieldEventServiceClient.set(transferService, this.eventServiceClient);
 
         // Mocking Transfer Objects
-        AccountDetailsResponse accountDetailsResponse = new AccountDetailsResponse();
-        List<AccountDto> accountDtoList = new ArrayList<>();
+        UpdateAccountDetailsResponse updateAccountDetailsResponse = getUpdateAccountDetailsResponse();
+        when(accountServiceClient.updateAccountDetails(Mockito.any())).thenReturn(updateAccountDetailsResponse);
 
-        AccountDto accountDto1 = new AccountDto();
-        accountDto1.setAccountNumber("sa1001");
-        accountDto1.setAccountBalance(BigDecimal.valueOf(5000));
+        RecordTransferEventResponse recordTransferEventResponse = getRecordTransferEventResponse();
+        when(eventServiceClient.recordTransferEvent(Mockito.any())).thenReturn(recordTransferEventResponse);
 
-        AccountDto accountDto2 = new AccountDto();
-        accountDto2.setAccountNumber("sa1002");
-        accountDto2.setAccountBalance(BigDecimal.valueOf(1000));
+    }
 
-        accountDtoList.add(accountDto1);
-        accountDtoList.add(accountDto2);
-
-        accountDetailsResponse.setListAccountDto(accountDtoList);
-        when(accountServiceClient.getAccountDetails(Mockito.any())).thenReturn(accountDetailsResponse);
-
+    private RecordTransferEventResponse getRecordTransferEventResponse() {
         RecordTransferEventResponse recordTransferEventResponse = new RecordTransferEventResponse();
         TransferEventDto transferEventDto = new TransferEventDto();
         transferEventDto.setEventId(1);
         transferEventDto.setSourceAccountNumber("sa1001");
         transferEventDto.setDestinationAccountNumber("sa1002");
         transferEventDto.setTransferAmount(BigDecimal.valueOf(1000));
-
         recordTransferEventResponse.setTransferEventDto(transferEventDto);
-        when(eventServiceClient.recordTransferEvent(Mockito.any())).thenReturn(recordTransferEventResponse);
+        return recordTransferEventResponse;
+    }
 
-        accountDetailsResponse = new AccountDetailsResponse();
-        accountDtoList = new ArrayList<>();
-
-        accountDto1 = new AccountDto();
-        accountDto1.setAccountNumber("sa1001");
-        accountDto1.setAccountBalance(BigDecimal.valueOf(4000));
-
-        accountDto2 = new AccountDto();
-        accountDto2.setAccountNumber("sa1002");
-        accountDto2.setAccountBalance(BigDecimal.valueOf(2000));
-
-        accountDtoList.add(accountDto1);
-        accountDtoList.add(accountDto2);
-
-        accountDetailsResponse.setListAccountDto(accountDtoList);
-        when(accountServiceClient.updateAccountDetails(Mockito.any())).thenReturn(accountDetailsResponse);
-
+    private UpdateAccountDetailsResponse getUpdateAccountDetailsResponse() {
+        UpdateAccountDetailsResponse updateAccountDetailsResponse = new UpdateAccountDetailsResponse();
+        TransferFundDto transferFundDto = new TransferFundDto();
+        transferFundDto.setSourceAccountNumber("sa1001");
+        transferFundDto.setDestinationAccountNumber("sa1002");
+        transferFundDto.setTransferAmount(BigDecimal.valueOf(1000));
+        updateAccountDetailsResponse.setTransferFundDto(new TransferFundDto());
+        updateAccountDetailsResponse.setErrorCodeList(new ArrayList<>());
+        return updateAccountDetailsResponse;
     }
 
     @Test
-    @DisplayName("Test transfer from source to destination when:" +
-            "1. Both Accounts are valid" +
-            "2. Source Account has sufficient account balance")
-    void testTransferSufficientFunds() {
+    @DisplayName("Test Transfer service when account and event service returns no error")
+    void testTransferWhenAccountAndEventServiceReturnsNoError() {
         TransferRequest transferRequest = new TransferRequest();
         transferRequest.setSourceAccountNumber("sa1001");
         transferRequest.setDestinationAccountNumber("sa1002");
         transferRequest.setTransferAmount(BigDecimal.valueOf(1000));
         TransferResponse transferResponse = transferServiceController.transfer(transferRequest);
 
+        assertTrue(transferResponse.getSourceAccountNumber().equalsIgnoreCase("sa1001"));
+        assertTrue(transferResponse.getDestinationAccountNumber().equalsIgnoreCase("sa1002"));
+        assertTrue(transferResponse.getTransferAmount().compareTo(BigDecimal.valueOf(1000)) ==0);
         assertTrue(transferResponse.getTransferStatus());
+        assertTrue(transferResponse.getErrors() == null);
     }
 
     @Test
-    @DisplayName("Test transfer from source to destination when:" +
-            "1. Both Accounts are valid" +
-            "2. Source Account has insufficient account balance")
-    void testTransferInsufficientFunds() {
+    @DisplayName("Test Transfer service when account service returns an error")
+    void testTransferWhenAccountServiceReturnsNoError() {
+        UpdateAccountDetailsResponse updateAccountDetailsResponse = getUpdateAccountDetailsResponse();
+        updateAccountDetailsResponse.getErrorCodeList().add(ErrorCode.ERROR_GETTING_ACCOUNT_INFO);
+        when(accountServiceClient.updateAccountDetails(Mockito.any())).thenReturn(updateAccountDetailsResponse);
+
         TransferRequest transferRequest = new TransferRequest();
         transferRequest.setSourceAccountNumber("sa1001");
         transferRequest.setDestinationAccountNumber("sa1002");
-        transferRequest.setTransferAmount(BigDecimal.valueOf(10000));
+        transferRequest.setTransferAmount(BigDecimal.valueOf(1000));
         TransferResponse transferResponse = transferServiceController.transfer(transferRequest);
 
+        assertTrue(transferResponse.getSourceAccountNumber().equalsIgnoreCase("sa1001"));
+        assertTrue(transferResponse.getDestinationAccountNumber().equalsIgnoreCase("sa1002"));
+        assertTrue(transferResponse.getTransferAmount().compareTo(BigDecimal.valueOf(1000)) ==0);
         assertFalse(transferResponse.getTransferStatus());
+        assertTrue(transferResponse.getErrors() != null);
     }
 
     @Test
-    @DisplayName("Test transfer from source to destination when:" +
-            "1. Both Accounts are valid" +
-            "2. Source Account and destination account is same")
-    void testTransferAcrossSameAccount() {
+    @DisplayName("Test Transfer service when event service throws exception")
+    void testTransferWhenEventServiceThrowsException() {
+
+        when(eventServiceClient.recordTransferEvent(Mockito.any())).thenThrow(new RuntimeException());
+
         TransferRequest transferRequest = new TransferRequest();
         transferRequest.setSourceAccountNumber("sa1001");
-        transferRequest.setDestinationAccountNumber("sa1001");
-        transferRequest.setTransferAmount(BigDecimal.valueOf(10000));
+        transferRequest.setDestinationAccountNumber("sa1002");
+        transferRequest.setTransferAmount(BigDecimal.valueOf(1000));
         TransferResponse transferResponse = transferServiceController.transfer(transferRequest);
 
-        assertFalse(transferResponse.getTransferStatus());
-    }
-
-    @Test
-    @DisplayName("Test transfer from source to destination when:" +
-            "1. Both Accounts are valid" +
-            "2. Zero/Negative Fund transfer")
-    void testTransferZeroOrNegativeFundTransfer() {
-        TransferRequest transferRequest = new TransferRequest();
-        transferRequest.setSourceAccountNumber("sa1001");
-        transferRequest.setDestinationAccountNumber("sa1001");
-        transferRequest.setTransferAmount(BigDecimal.valueOf(0));
-        TransferResponse transferResponse = transferServiceController.transfer(transferRequest);
-
-        assertFalse(transferResponse.getTransferStatus());
-
-        transferRequest = new TransferRequest();
-        transferRequest.setSourceAccountNumber("sa1001");
-        transferRequest.setDestinationAccountNumber("sa1001");
-        transferRequest.setTransferAmount(BigDecimal.valueOf(-100));
-        transferResponse = transferServiceController.transfer(transferRequest);
-
-        assertFalse(transferResponse.getTransferStatus());
+        assertTrue(transferResponse.getSourceAccountNumber().equalsIgnoreCase("sa1001"));
+        assertTrue(transferResponse.getDestinationAccountNumber().equalsIgnoreCase("sa1002"));
+        assertTrue(transferResponse.getTransferAmount().compareTo(BigDecimal.valueOf(1000)) ==0);
+        assertTrue(transferResponse.getTransferStatus());
+        assertTrue(transferResponse.getErrors() == null);
     }
 }

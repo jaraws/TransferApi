@@ -5,6 +5,7 @@ import org.account.api.entity.Account;
 import org.account.api.mapper.AccountMapper;
 import org.account.api.service.AccountService;
 import org.common.api.dto.AccountDto;
+import org.common.api.dto.TransferFundDto;
 import org.common.api.exception.TransferException;
 import org.common.api.request.AccountDetailsRequest;
 import org.common.api.request.UpdateAccountDetailsRequest;
@@ -17,6 +18,7 @@ import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -63,7 +65,7 @@ public class AccountServiceController {
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
-        accountDetailsResponse.setErrorCode(ErrorCode.ERROR_GETTING_ACCOUNT_INFO);
+        accountDetailsResponse.setErrorCode(Arrays.asList(ErrorCode.ERROR_GETTING_ACCOUNT_INFO));
         return accountDetailsResponse;
 
     }
@@ -74,9 +76,7 @@ public class AccountServiceController {
      * @param accountDetailsRequest
      * @return
      */
-    @PostMapping(value = "/accounts",
-            produces = "application/json",
-            consumes = "application/json")
+    @PostMapping(value = "/accounts", produces = "application/json", consumes = "application/json")
     public AccountDetailsResponse getAccountDetails(@RequestBody AccountDetailsRequest accountDetailsRequest) {
 
         logger.debug("Getting account details for account numbers: {}", accountDetailsRequest.getAccountNumbers());
@@ -91,7 +91,7 @@ public class AccountServiceController {
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
-        accountDetailsResponse.setErrorCode(ErrorCode.ERROR_GETTING_ACCOUNT_INFO);
+        accountDetailsResponse.setErrorCode(Arrays.asList(ErrorCode.ERROR_GETTING_ACCOUNT_INFO));
         return accountDetailsResponse;
     }
 
@@ -101,26 +101,35 @@ public class AccountServiceController {
      * @param updateAccountDetailsRequest
      * @return
      */
-    @PostMapping(value = "/update",
-            produces = "application/json",
-            consumes = "application/json")
+    @PostMapping(value = "/update", produces = "application/json", consumes = "application/json")
     public UpdateAccountDetailsResponse updateAccountDetails(@RequestBody UpdateAccountDetailsRequest updateAccountDetailsRequest) {
 
-        logger.debug("Updating account details for account numbers: {}", updateAccountDetailsRequest.getListAccountDto().stream().map(dto -> dto.getAccountNumber()).collect(Collectors.toList()));
+        TransferFundDto transferFundDto = updateAccountDetailsRequest.getTransferFundDto();
+        logger.debug("Initiating fund transfer from account: {} to account: {}", transferFundDto.getSourceAccountNumber(), transferFundDto.getDestinationAccountNumber());
+
         UpdateAccountDetailsResponse updateAccountDetailsResponse = getUpdateAccountDetailsResponse();
+        updateAccountDetailsResponse.setTransferFundDto(transferFundDto);
         try {
-            List<Account> accountList = accountService.updateAccountDetails(updateAccountDetailsRequest.getListAccountDto().stream().map(accountMapper.accountDtoToEntityMapper).collect(Collectors.toList()));
-            List<AccountDto> listAccountDto = accountList.stream().map(accountMapper.accountEntityToDtoMapper).collect(Collectors.toList());
-            updateAccountDetailsResponse.setAccountDtoList(listAccountDto);
-            return updateAccountDetailsResponse;
+            // validate account details
+            List<ErrorCode> errorCodeList = accountService.validateAccountDetailsForTransfer(transferFundDto);
+
+            // If errors identified log errors in response and exit
+            if (errorCodeList.size() > 0) {
+                updateAccountDetailsResponse.setErrorCodeList(errorCodeList);
+                return updateAccountDetailsResponse;
+            }
+
+            // No validation errors found, execute fund transfer in isolation
+            errorCodeList = accountService.updateAccountDetails(updateAccountDetailsRequest.getTransferFundDto());
+            updateAccountDetailsResponse.setErrorCodeList(errorCodeList);
+
         } catch (TransferException e) {
             logger.error("Error updating account details {},{}", e.getErrorCode(), e);
-            updateAccountDetailsResponse.setErrorCode(e.getErrorCode());
+            updateAccountDetailsResponse.setErrorCodeList(Arrays.asList(e.getErrorCode()));
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
-            updateAccountDetailsResponse.setErrorCode(ErrorCode.ERROR_UPDATING_ACCOUNT_INFO);
+            updateAccountDetailsResponse.setErrorCodeList(Arrays.asList(ErrorCode.ERROR_UPDATING_ACCOUNT_INFO));
         }
-
         return updateAccountDetailsResponse;
     }
 

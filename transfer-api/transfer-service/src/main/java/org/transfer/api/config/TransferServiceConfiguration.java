@@ -1,6 +1,7 @@
 package org.transfer.api.config;
 
 import org.common.api.dto.TransferEventDto;
+import org.common.api.dto.TransferFundDto;
 import org.common.api.request.AccountDetailsRequest;
 import org.common.api.request.RecordTransferEventRequest;
 import org.common.api.request.UpdateAccountDetailsRequest;
@@ -35,6 +36,12 @@ public class TransferServiceConfiguration {
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     public UpdateAccountDetailsRequest updateAccountDetailsRequest() {
         return new UpdateAccountDetailsRequest();
+    }
+
+    @Bean
+    @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+    public TransferFundDto transferFundDto() {
+        return new TransferFundDto();
     }
 
     @Bean
